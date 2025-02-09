@@ -1,0 +1,956 @@
+/*
+ * blueMail offline mail reader
+ * ????? driver
+
+ Copyright (c) 2004 Ingo Brueckl <ib@wupperonline.de>
+
+ Distributed under the GNU General Public License.
+ For details, see the file COPYING in the parent directory. */
+
+
+#include "?????.h"
+#include "../../common/auxil.h"
+#include "../../common/mysystem.h"
+
+
+/*
+   ????? main driver
+*/
+
+?????::????? (bmail *bm)
+{
+  // In the constructor, only set the variables -
+  // anything else must be done in init() to be able to handle errors!
+
+  this->bm = bm;
+  //tool = new basic_tool(bm, this);
+
+  areas = NULL;
+  persIDX = NULL;
+  persmsgs = 0;
+
+  persArea = bm->resourceObject->isYes(PersonalArea);
+  if (bm->getServiceType() == ST_REPLY) persArea = false;
+
+  body = NULL;
+  // set all globally used FILE * to NULL;
+}
+
+
+?????::~????? ()
+{
+  while (maxAreas--)
+  {
+    delete[] body[maxAreas];
+    delete[] area[maxAreas]/*. or ->*/title;
+    //delete area[maxAreas];     // if maxAreas was determinated dynamically
+  }
+
+  //delete[] bulletins;
+  delete[] letterBody;
+  delete[] body;
+  delete[] persIDX;
+  delete[] areas;
+  //delete tool;
+
+  if (/* globally used FILE * */) fclose(/* it */);
+}
+
+
+const char *?????::init ()
+{
+  // Any initialization (like opening or locking files) necessary for the
+  // driver to work properly must be done here. If an error occurs that
+  // prevents the driver from working, return a string with a short
+  // description. This error will be reported to the user. (There is no
+  // reason for a "fatalError" during initialization.)
+  // If everything is ok, return NULL.
+
+  // these 4 MUST be set (at least to "")
+  // if no Login/Alias/SysOpName is available,
+  // const char *username = bm->resourceObject->get(UserName) should be used
+  bm->resourceObject->set(LoginName, /* loginname */);
+  bm->resourceObject->set(AliasName, /* aliasname */);
+  bm->resourceObject->set(SysOpName, /* sysop */);
+  bm->resourceObject->set(BBSName, /* systemname */);
+  // (if there is no BBSName, choose a description of ????? instead)
+
+  // tell whether loginname ("Y") or username ("N") has been set above
+  bm->resourceObject->set(hasLoginName, "Y" /* or "N" */);
+
+  // files (containing the mail data) must be accessed by using bm->fileList
+
+  if (!getAreas()) return /* error */;
+
+  body = new bodytype *[maxAreas];
+  for (int i = 0; i < maxAreas; i++) body[i] = NULL;
+
+  if ((persmsgs = buildIndices()) == -1) return /* error */;
+
+  // set packetID
+
+  // const char bulletinfile[N][13] = {file1, ..., fileN};
+  // bulletins = tool->bulletin_list(bulletinfile, N, BL_NOADD);
+
+  return /* NULL or a short description why the driver can't work */;
+}
+
+
+area_header *?????::getNextArea ()
+{
+  area_header *ah;
+  char areanum[12];
+  int flags;
+
+  bool isPersArea = (persArea && (NAID == 0));
+
+  // if not already done in buildIndices():
+  //body[NAID] = new bodytype[/* area number NAID totmsgs */];
+
+  sprintf(areanum, "%d", /* area number NAID number */);
+
+  if (isPersArea) flags = A_COLLECTION | A_READONLY | A_LIST;
+  else
+  {
+    flags = /* set from area number NAID flags */;
+    // If there is no flag saying that area number NAID is (or can be)
+    // subscribed, set A_LIST for all areas and A_SUBSCRIBED if and only
+    // if area number NAID has messages!
+    // If there is no offline configuration or driver gives full access to
+    // all areas (like file/database driver) set A_LIST on all areas.
+  }
+
+  ah = new area_header(bm, NAID + bm->driverList->getOffset(this),
+                       (isPersArea ? "PERS" : areanum),
+                       (isPersArea ? "PERSONAL" : /* area number NAID shortname */),
+                       (isPersArea ? "Letters addressed to you"
+                                   : /* area number NAID longname */),
+                       (isPersArea ? "????? Personal" : "?????"),
+                       flags,
+                       /* area number NAID totmsgs */,
+                       /* area number NAID numpers */,
+                       /* maxFromToLen, maxSubjLen */);
+  NAID++;
+
+  return ah;
+}
+
+
+inline int ?????::getNoOfLetters ()
+{
+  return /* number of totmsgs in currentArea */;
+}
+
+
+letter_header *?????::getNextLetter ()
+{
+  int area, letter;
+
+  if (persArea && (currentArea == 0))
+  {
+    area = persIDX[NLID].area;
+    letter = persIDX[NLID].msgnum;
+  }
+  else
+  {
+    area = currentArea;
+    letter = NLID;
+  }
+
+  // go to letter header information of <letter> in <area>
+  // which is "real area" = <area> - persOffset()
+  // or use body[area][letter].pointer if already set in buildIndices()
+  // and retrieve information
+
+  // if not already done in buildIndices():
+  //body[area][letter].pointer = /* pointer for access by getBody() */;
+  //body[area][letter].msglen = /* message length */;
+
+  // only if possible:
+  // net_address na;
+  // and na.set(...)
+  // (if not, do it in getBody() and pass NULL instead of &na below)
+
+  NLID++;
+  return new letter_header(bm, letter,
+                           // from,
+                           // to,
+                           // subject,
+                           // date,
+                           // msgnum, replyto,
+                           area,
+                           // flags,
+                           isLatin1() /* or character set depending on area */,
+                           /* &na or NULL */,
+             /* (1) */     NULL /* or alternative reply address */,
+             /* (2) */     NULL /* or (list of) area(s) reply must be in */,
+             /* (3) */     NULL /* or reply id to pass to enterLetter() */,
+                           this);
+  // comments:
+  //
+  // (1): This will by used by the interface instead of na for netmail
+  //      replies if set. (If it's set, it will be used in any case -
+  //      whether cross-posting is allowed or not.)
+  //
+  // (2): This will only be used by the interface, if cross-posting is
+  //      allowed. In this case, it MUST be set and MUST NOT be NULL!
+  //
+  // (3): This won't be used by the interface, but only be passed through
+  //      to ?????_reply::enterLetter().
+}
+
+
+const char *?????::getBody (int area, int letter, letter_header *lh)
+{
+  int kar;
+
+  delete[] letterBody;
+  letterBody = new char[body[area][letter].msglen + 1];
+  unsigned char *p = (unsigned char *) letterBody;
+
+  // Access message body by using body[area][letter].pointer,
+  // else (if you need to use parameter "area" to directly access the area)
+  // you have to reduce parameter "area" by persOffset() first to get
+  // "real area" = area - persOffset().
+  // If body[area][letter].pointer has been set in buildIndices() and pointer
+  // points to header, skip header information and fseek to message body.
+
+  for (long c = 0; c < body[area][letter].msglen; c++)
+  {
+    kar = /* character number c of message */;
+
+    // a message shouldn't (must not) contain a 0x00 character
+    if (kar == 0) kar = ' ';
+
+    // end of line? (only in case of a special eol char)
+    if (kar == /*'?'*/) *p++ = '\n';
+    else /* if (kar != '\r') */ *p++ = kar;
+    // kar != '\r' ensures that a DOS (CR/LF) file can be handled in Linux
+  }
+
+  do p--;
+  // strip blank lines
+  while (p >= (unsigned char *) letterBody && (*p == ' ' || *p == '\n'));
+
+  *++p = '\0';
+
+  // analyse body and set any necessary information like
+  // character set is Latin1 (if used, see remark below),
+  // netAddr etc. by using letter_header lh
+  // ...
+  // Remark on character set determination: A boolean variable latin1 must
+  // be defined as: bool latin1 = lh->isLatin1();
+  // and passed the function determining the character set by reference:
+  // foo(..., &latin1);
+  // foo must not change the variable until it can definitively determine
+  // the character set (i.e. Latin1 or not Latin1) in order to allow
+  // recognition by MIME encoded header fields.
+
+  // // decode quoted-printable
+  // if (bm->driverList->allowQuotedPrintable() && tool->isQP(letterBody))
+  //   tool->mimeDecodeBody(letterBody);
+
+  // // decode UTF-8
+  // if (tool->isUTF8(letterBody)) tool->utf8DecodeBody(letterBody);
+
+  return letterBody;
+}
+
+
+void ?????::initMSF (int **msgstat)
+{
+  // only for real areas, not for collections
+  // for each letter l in each area a, set msgstat[a][l] = 0
+  // or = MSF_PERSONAL (if driver has set attribute PERSONAL
+  // and letter is personal)
+}
+
+
+int ?????::readMSF (int **msgstat)
+{
+  // read a MSF file (only real areas, no collections)
+  // and call initMSF if it doesn't exist
+  // return all MSF flags supported by ?????
+}
+
+
+const char *?????::saveMSF (int **msgstat)
+{
+  // save a MSF file (only real areas, no collections)
+
+  return /* NULL (error, but retry allowed),
+            "!" (error - no retry allowed!),
+            "" (ok, no further processing by bmail::saveLastread())
+         or MSF file name (which bmail::saveLastread() will add to packet) */;
+
+  // The MSF file name shouldn't be just the packet name, but something that
+  // is more unique, a kind of ID (getPacketID()) that won't change when
+  // renaming the packet.
+}
+
+
+inline const char *?????::getPacketID () const
+{
+  return /* something unique for the replyPacketName,
+            shouldn't be just the packet name */;
+}
+
+
+inline bool ?????::isLatin1 ()
+{
+  return /* assume character set to be Latin1 if not stated otherwise */;
+}
+
+
+inline bool ?????::offlineConfig ()
+{
+  return /* whether offline configuration of areas is possible */;
+}
+
+
+bool ?????::getAreas ()
+{
+  // If an error occurs, return false. The destructor will destroy
+  // everything allocated for maxAreas (body[], areas[] etc.).
+  // So if in case of error maxAreas != 0, but nothing has yet been
+  // allocated, set maxAreas to 0 before returning.
+
+(1) if maxAreas is known or can be calculated:
+
+  maxAreas = /* get it */ + persOffset();
+
+  areas = new ?????_AREA_INFO[maxAreas];
+
+  if (persArea)
+  {
+    areas[0].title = NULL;
+    areas[0].totmsgs = areas[0].numpers = 0;
+  }
+
+  for (int a = persOffset(); a < maxAreas; a++)
+  {
+    // fill areas[a]
+  }
+
+(1) done
+
+(2) if maxAreas has to be determinated dynamically:
+
+  ?????_AREA_INFO anchor, *idx = &anchor;
+
+  if (persArea)
+  {
+    maxAreas++;                          |
+    idx->next = new ?????_AREA_INFO;     | same as in: while (/* area found *)
+    idx = idx->next;                     | (see below)
+    // initialize idx (with 0s or NULLs) |
+    idx->next = NULL;                    |
+  }
+
+  while (/* new area found *)
+  {
+    maxAreas++;                          |
+    idx->next = new ?????_AREA_INFO;     | same as in: if (persArea)
+    idx = idx->next;                     | (see above)
+    // fill idx                          |
+    idx->next = NULL;                    |
+  }
+
+  if (maxAreas)
+  {
+    areas = new ?????_AREA_INFO *[maxAreas];
+    idx = anchor.next;
+    int i = 0;
+
+    while (idx)
+    {
+      areas[i++] = idx;
+      idx = idx->next;
+    }
+  }
+
+(2) done
+
+  return true;
+}
+
+
+int ?????::buildIndices ()
+{
+  // If an error occurs, return -1. The destructor will destroy body[] and
+  // areas[]. If anything else has been allocated, destroy it yourself!
+
+  // For each (int a = persOffset(); a < maxAreas; a++) we need
+  // to set areas[a].totmsgs for "real area" = a - persOffset()
+  // (if persArea, areas[0].totmsgs = count of personal messages).
+  // Depending on the mail data file(s), there are several methods to get
+  // this information so either:
+  //
+  // 1) get the amount of messages per area or calculate it
+  //    if 1) isn't possible:
+  // 2) read all headers (in separate header file with pointer to message)
+  //    if 2) isn't possible:
+  // 3) sequentially read common header & message data file
+  //
+  // - If driver uses MSF_PERSONAL, but there is no personal letter
+  //   information available (and it will hardly be), 1) can't be used,
+  //   use 2) or 3) and build dynamically persIDX.
+  // - In case of 1) or 2), allocation of body[] can be done getNextArea()
+  //   and getNextLetter().
+  // - In case of 3), dynamically build information for body[] (with pointer
+  //   pointing either to header or body) and set body[] here.
+
+  // persIDX example (must, if driver uses MSF_PERSONAL):
+  // see bbbs::buildIndices()
+
+  // dynamically built information for body example:
+  // see omen::buildIndices()
+
+  return (/* if no error */ ? count of personal messages : -1);
+}
+
+
+int ?????::getAreaIndex (/*identifier*/) const
+{
+  int a;
+
+  for (a = persOffset(); a < maxAreas; a++)
+    if (strcasecmp(board[a].title, title) == 0) break;
+
+  return (a == maxAreas ? -1 : a);
+}
+
+
+/*
+   ????? reply driver
+*/
+
+?????_reply::?????_reply (bmail *bm, main_driver *mainDriver)
+{
+  // In the constructor, only set the variables -
+  // anything else must be done in init() to be able to handle errors!
+
+  this->bm = bm;
+  this->mainDriver = (????? *) mainDriver;
+  firstReply = currentReply = NULL;
+}
+
+
+?????_reply::~?????_reply ()
+{
+  REPLY *next, *r = firstReply;
+
+  while (r)
+  {
+    next = r->next;
+
+    //delete[] r->header.from;
+    //delete[] r->header.to;
+    //delete[] r->header.subject;
+    //delete[] r->header.date;
+    //delete[] r->header.areatag;
+    //delete[] r->header.netAddr;
+    if (r->filename) remove(r->filename);
+    delete[] r->filename;
+
+    delete r;
+    r = next;
+  }
+
+  delete[] replyBody;
+}
+
+
+const char *?????_reply::init ()
+{
+  // Any initialization (like opening or locking files) necessary for the
+  // reply-driver to work properly must be done here. If an error occurs
+  // that prevents the driver from working, return a string with a short
+  // description. This error will be reported to the user. (There is no
+  // reason for a "fatalError" during initialization.)
+  // If everything is ok, return NULL.
+
+  sprintf(replyPacketName, "%.8s.___", mainDriver->getPacketID());
+  // ___ is a unique suffix for ????? type of replies, which
+  // must be at least of length 1 (and must not contain the character $)
+
+  // call replyInf() first...
+  if (bm->getServiceType() != ST_REPLY) replyInf();
+
+  // ...and getReplies() afterwards
+  return (getReplies() ? NULL : error);
+}
+
+
+inline area_header *?????_reply::getNextArea ()
+{
+  return getReplyArea("????? Replies");
+}
+
+
+letter_header *?????_reply::getNextLetter ()
+{
+  net_address na;
+
+  // from the structure suitable to store a letter's header information
+  // (using currentReply) retrieve:
+  //                                from
+  //                                to
+  //                                subject
+  //                                date
+  //                                replyto
+  //                                area
+  //                                flags
+  //                                netAddr
+  //                                replyIn (if needed)
+  //                                replyID (if needed)
+  //
+  // For area (number) see comment in enterLetter() below.
+  // If the area, the reply belongs to, does not exist, pass 0
+  // (without any offsets) instead. blueMail will handle these replies.
+  //
+  // If you use a getAreaIndex-function, simply do:
+  //
+  //int area = mainDriver->getAreaIndex(currentReply->/*identifier*/);
+  //area += (area == -1 ? 1 : bm->driverList->getOffset(mainDriver));
+  //
+  // and pass area (without any offsets) below.
+
+
+  if (/* netAddr is set */) na.set(/* from netAddr */);
+  // if network addresses aren't supported at all, pass NULL
+  // instead of &na below
+
+  letter_header *newLetter = new letter_header(bm, NLID,
+                                               // from, to, subject, date,
+                                               NLID,
+                                               // replyto,
+                                               // area + mainDriver->persOffset(),
+                                               // flags,
+                                               isLatin1() /* or character set depending on area */,
+                                               &na,
+                                               NULL,
+                                               // NULL (or replyIn),
+                                               // NULL (or replyID),
+                                               this);
+
+  NLID++;
+  currentReply = currentReply->next;
+
+  return newLetter;
+}
+
+
+const char *?????_reply::getBody (int area, int letter, letter_header *lh)
+{
+  FILE *replyFile;
+
+  (void) area;
+  delete[] replyBody;
+
+  REPLY *r = firstReply;
+  for (int l = 1; l < letter; l++) r = r->next;
+
+  if ((replyFile = fopen(r->filename, "rt")))
+  {
+    long msglen = r->length;
+    replyBody = new char[msglen + 1];
+    msglen = fread(replyBody, sizeof(char), msglen, replyFile);
+    if (msglen && (replyBody[msglen - 1] == '\n')) msglen--;
+    replyBody[msglen] = '\0';
+
+    // if necessary, analyse body and set any information like
+    // character set is Latin1 (see remark in ?????::getBody above),
+    // netAddr etc. by using letter_header lh
+    // ...
+
+    fclose(replyFile);
+  }
+  else replyBody = strdupplus("");
+
+  return replyBody;
+}
+
+
+void ?????_reply::resetLetters ()
+{
+  NLID = 1;
+  currentReply = firstReply;
+}
+
+
+inline bool ?????_reply::isLatin1 ()
+{
+  return mainDriver->isLatin1();
+}
+
+
+void ?????_reply::enterLetter (letter_header *newLetter,
+                               const char *newLetterFileName, long msglen)
+{
+  // newLetter contains the following information: from, to, subject,
+  // reply to message number, area number, flags, network address,
+  // replyIn and replyID;
+  // the filename (letter body) and it's length are passed separately;
+  // bm->areaList access (in replied area) is possible
+  //
+  // ! Don't use newLetter->getDate(), it's empty.
+  // ! You won't need newLetter->getReplyAddr(), it's empty anyhow.
+  // ! If letter isn't a reply, newLetter->getReplyID() is NULL.
+  //
+  // The area number to store is: newLetter->getAreaID() -
+  //                              mainDriver->persOffset()
+  // which is the area (number) index in bm->areaList.
+  //
+  // The corresponding mainDriver area number is:
+  //    newLetter->getAreaID() - bm->driverList->getOffset(mainDriver),
+  // and the corresponding mainDriver "real area" is:
+  //    newLetter->getAreaID() - bm->driverList->getOffset(mainDriver) -
+  //    mainDriver->persOffset().
+  //
+  // Rather than the area number, something that identifies the area
+  // - like it's shortname or title - should be stored.
+  // In getNextLetter() you can search then for this through bm->areaList
+  // (0 .. bm->areaList->getNoOfAreas()) and pass the index found (without
+  // any offsets) as area (number) parameter.
+
+  REPLY *newReply = new REPLY;
+  // if REPLY contains a ????? specific structure:
+  memset(newReply, 0, sizeof(REPLY));
+
+  // in the structure suitable to store a letter's header information
+  // (using newLetter) store:
+  //                          from
+  //                          to
+  //                          subject
+  //                          date
+  //                          reply to message number
+  //                          area number
+  //                          flags (only those, ????? can handle)
+  //                          network address
+  //                          replyIn (if needed)
+  //                          replyID (if needed)
+  //
+  // (to copy strings into newReply fields, you can savely use strncpy
+  // with n = field_len - 1 without terminating by '\0', because of
+  // the memset above)
+
+  newReply->filename = strdupplus(newLetterFileName);
+  newReply->length = msglen;
+  newReply->next = NULL;
+
+  if (!firstReply) firstReply = newReply;
+
+  if (noOfLetters)
+  {
+    REPLY *r = firstReply;
+    // find last reply
+    for (int l = 1; l < noOfLetters; l++) r = r->next;
+    r->next = newReply;
+  }
+
+  noOfLetters++;
+}
+
+
+void ?????_reply::killLetter (int letter)
+{
+  REPLY *killReply, *r;
+
+  if (letter == 1)
+  {
+    killReply = firstReply;
+    firstReply = firstReply->next;
+  }
+  else
+  {
+    r = firstReply;
+    for (int l = 1; l < letter - 1; l++) r = r->next;
+    killReply = r->next;
+    r->next = (letter == noOfLetters ? NULL : r->next->next);
+  }
+
+  remove(killReply->filename);
+  delete[] killReply->filename;
+  delete killReply;
+
+  noOfLetters--;
+  resetLetters();
+}
+
+
+const char *?????_reply::newLetterBody (int letter, long size)
+{
+  REPLY *r = firstReply;
+  for (int l = 1; l < letter; l++) r = r->next;
+
+  if (size >= 0) r->length = size;
+  return r->filename;
+}
+
+
+void ?????_reply::replyInf ()
+{
+  // put everything, i.e. all files, necessary to load the ????? main driver
+  // into bm->resourceObject->get(InfWorkDir)
+  // (All areas must be present, but empty, i.e. NO LETTER in any area,
+  // which means NO LETTERS at all. So files containing letter header or
+  // letter data may be empty, because the only required information is
+  // the information about the existing areas AND THE AREA FLAGS!
+
+  // (If replyInf() is called before getReplies(), the actual directory
+  // is the same it was for the ????? main driver.)
+
+  bm->service->createSystemInfFile(fmtime(/* of a file that contains
+                                             information about the areas and
+                                             changes, when areas change */),
+                 /* MUST! --> */   mainDriver->getPacketID(),
+                 /* MUST! --> */   strrchr(replyPacketName, '.') + 1
+                 // ONLY, if stem(replyPacketName) is different from
+                 //       mainDriver->getPacketID():
+                                 , replyPacketName
+                 //
+                                   );
+}
+
+
+bool ?????_reply::putReplies ()
+{
+  // It may be possible that there are no letters (noOfLetters == 0)!
+  // In this case, there may be an offline configuration to save!
+
+  char /* control file */Name[13];
+  FILE * /* control file */;
+  bool success = true;
+
+  // fill /* control file */Name
+
+  // memset 0 and fill a control structure if ????? uses one
+
+  if (!(/* control file */ = fopen(/* control file */Name, "wb")))
+    return false;
+
+  // write control structure, close control file and return false, if error
+
+  REPLY *r = firstReply;
+
+  for (int l = 0; l < noOfLetters; l++)
+  {
+    if (!put1Reply(/* control file */, r))
+    {
+      success = false;
+      break;
+    }
+    r = r->next;
+  }
+
+  fclose(/* control file */);
+
+  // if offline configuration of areas is possible:
+  //if (success && bm->areaList->areaConfig()) success = putConfig();
+
+  return success;
+}
+
+
+bool ?????_reply::put1Reply (FILE * /* control file */, REPLY *r)
+{
+  FILE *reply;
+  //char *replyText;
+  bool success;
+  const char *file = fname(r->filename);
+
+  // write the control file from r (return with false, if error)
+  // put:
+  //      structure suitable to store a letter's header information
+  //      file     (convert, if necessary, so that the text in file satisfies
+  //                ?????'s reply rules; if ????? reply bodies are stored in
+  //                files, file must be in current directory which is
+  //                ReplyWorkDir; r->filename is in directory WorkDir)
+  //      (length,  only if needed by ????? control file; it will be regained
+  //                in get1Reply())
+
+  if (!(reply = fopen(r->filename, "rt"))) return false;
+
+  // handle reply text, use variable success to check read/write operations
+
+  fclose(reply);
+
+  //delete[] replyText;
+  return success;
+}
+
+
+bool ?????_reply::getReplies ()
+{
+  file_list *replies;
+  const char * /* control file name */ = NULL;
+  FILE * /* control file */ = NULL;
+  bool success = true;
+
+  if (!(replies = unpackReplies())) return true;
+
+  if (!(/* control file name */ = replies->exists(/* ... */)) ||
+      !(/* control file */ = replies->ftryopen(/* control file name */, "rb")))
+  {
+    strcpy(error, "Could not open reply file.");
+    success = false;
+  }
+  else
+  {
+    noOfLetters = replies->getNoOfFiles() - 1;     // - 1, because...
+    // ...typically, one file is a control file containing the letter's headers
+
+    REPLY seed, *r = &seed;
+    seed.next = NULL;
+
+    for (int l = 0; l < noOfLetters; l++)
+    {
+      r->next = new REPLY;
+      r = r->next;
+      r->filename = NULL;
+      r->next = NULL;
+
+      if (!get1Reply(/* control file */, r))
+      {
+        strcpy(error, "Could not get reply.");
+        success = false;
+        break;
+      }
+    }
+
+    firstReply = seed.next;
+  }
+
+  if (/* control file */) fclose(/* control file */);
+  if (/* control file name */) remove(/* control file name */);
+  delete replies;
+  if (!success) clearDirectory(".");     // clean up
+
+  return success;
+}
+
+
+bool ?????_reply::get1Reply (FILE * /* control file */, REPLY *r)
+{
+  FILE *reply;
+  char filepath[MYMAXPATH];
+  //static int fnr = 1;
+
+  // make a filename similar to that LetterWindow::mkrepfname() creates,
+  // i.e. using the area number
+  mkfname(filepath, bm->resourceObject->get(WorkDir), /* ... */);
+
+  if (!(reply = fopen(filepath, "wt"))) return false;
+
+  // fill r from the control file (return with false, if error)
+  // set:
+  //      r->structure suitable to store a letter's header information
+  //      r->filename (convert, if necessary, so that each line is terminated
+  //                   with '\n'; r->filename must be in WorkDir, the original
+  //                   file - if ????? stores reply bodies in files - is in
+  //                   current directory which is ReplyWorkDir)
+  //      r->length
+
+  r->filename = strdupplus(filepath);   // Set as soon as file is created!
+  r->length = /* ... */;
+  fclose(reply);
+
+  // remove original file (- if there is one - from current directory which
+  //                       is ReplyWorkDir)
+  return true;
+}
+
+
+// only needed if offline configuration of areas is possible
+//void ?????_reply::getConfig ()
+//{
+//  file_list *replies = new file_list(bm->resourceObject->get(ReplyWorkDir));
+//
+//  // get the offline configuration of areas, find bm->areaList index for
+//  // area and then do either:
+//  //
+//  // BlueWave-like configuration
+//  //   For this configuration type, all areas are considered to be
+//  //   unsubscribed with the exception of the ones specified, thus do
+//  //   if (bm->areaList->isSubscribed()) bm->areaList->setDropped() for
+//  //   all areas starting from bm->driverList->getOffset(mainDriver) +
+//  //   mainDriver->persOffset() and bm->areaList->setAdded() for the areas
+//  //   specified.
+//  //
+//  // or
+//  //
+//  // QWKE-like configuration
+//  //   For this configuration type, there is a per-area-information on
+//  //   whether the area is to subscribe or to unsubscribe, thus do
+//  //   bm->areaList->setAdded(true) or bm->areaList->setDropped(true).
+//
+//  if (/* config file name */) remove(/* config file name */);
+//
+//  delete replies;
+//}
+
+
+// only needed if offline configuration of areas is possible
+//bool ?????_reply::putConfig ()
+//{
+//  bool success = true;
+//
+//  // Do either:
+//  //
+//  // BlueWave-like configuration
+//  //   For this configuration type, all areas are considered to be
+//  //   unsubscribed with the exception of the ones specified, thus write
+//  //   if (bm->areaList->isAdded() ||
+//  //       (bm->areaList->isSubscribed() && !bm->areaList->isDropped()))
+//  //   for all areas starting from bm->driverList->getOffset(mainDriver) +
+//  //   mainDriver->persOffset().
+//  //
+//  // or
+//  //
+//  // QWKE-like configuration
+//  //   For this configuration type, there is a per-area-information on
+//  //   whether the area is to subscribe or to unsubscribe, thus
+//  //   subscribe:
+//  //     if (!bm->areaList->isSubscribed() && bm->areaList->isAdded())
+//  //   unsubscribe:
+//  //     if (bm->areaList->isSubscribed() && bm->areaList->isDropped())
+//  //   for all areas starting from bm->driverList->getOffset(mainDriver) +
+//  //   mainDriver->persOffset().
+//
+//  if (!success) remove(/* config file name */);
+//
+//  return success;
+//}
+
+
+// only needed if available areas are stored in separate file
+// see soup_reply::getExtraArea() for usage
+//const char *?????_reply::getExtraArea (int &count_or_state)
+//{
+//  if (count_or_state == -1)
+//    // set count_or_state to count of areas in separate file which are NOT
+//    // already reported in mainDriver,
+//    // i.e. skip areas with mainDriver->getAreaIndex() != -1
+//    // return NULL
+//  else
+//    // report for area number "count_or_state":
+//    // set count_or_state to 1 if area now flagged subscribed,
+//    // and 0 if now flagged unsubscribed
+//    // return title
+//}
+
+
+// only needed if available areas are stored in separate file
+// see soup_reply::getExtraArea() for usage
+//void ?????_reply::setExtraArea (int extra, bool subscribe, const char *title)
+//{
+//  // We must somehow ensure that area_list::areaConfig() will report
+//  // that configuration has changed, then:
+//
+//  if (title)
+//    // interface has ensured, that title is really a new area, so store it
+//    // with state "subscribe"
+//  else
+//    // flag area number "extra" now state "subscribe"
+//}

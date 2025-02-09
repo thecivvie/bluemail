@@ -1,0 +1,62 @@
+.TH BMUNCOLL 1 "October 18, 2002" "" "User Manual"
+
+.SH NAME
+bmuncoll \- a program to extract files from a collection
+
+.SH SYNOPSIS
+.B bmuncoll -tx
+.I file
+
+.SH DESCRIPTION
+.B bmuncoll
+is a program to extract files from a collection.
+.I Collections
+are used by blueMail (see
+.BR bmail (1))
+to store replies of mail format types which \- in opposition to offline mail
+packets \- do not have a definition on how a reply should be stored.
+
+.B bmuncoll
+always extracts to the current directory and overwrites files with same names
+already existing, so it is a good idea to create a new, empty directory, make
+it the current working directory and call
+.B bmuncoll
+from there! The extracted files should be passed to an external program that
+is able to process them and finally \- if they are processed without error \-
+be deleted, as the collection file should be deleted, too.
+
+.SH OPTIONS
+.TP
+.B -t
+test whether
+.I file
+is a collection
+
+.TP
+.B -x
+extract all files stored in collection
+.I file
+
+.SH DIAGNOSTICS
+The exit status (or error level) takes one of the following values:
+.RS
+.IP 0
+normal execution, no errors or warnings
+.IP 1
+error in arguments
+.IP 2
+the specified file could not be opened
+.IP 3
+the specified file is not a collection
+.IP 4
+error during extraction
+.RE
+
+.SH BUGS
+If you find any bugs, or have ideas for improvement, please write to me.
+
+.SH AUTHOR
+Ingo Brueckl <ib@wupperonline.de>
+
+.SH SEE ALSO
+.BR bmail (1)

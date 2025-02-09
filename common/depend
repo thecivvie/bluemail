@@ -1,0 +1,17 @@
+auxil.o: auxil.cc auxil.h mysystem.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h
+bmuncoll.o: bmuncoll.cc bmuncoll.h ../bluemail/service.h \
+  ../bluemail/resource.h ../bluemail/../common/mysystem.h auxil.h \
+  mysystem.h uncoll.cc
+error.o: error.cc error.h mysystem.h ../interfac/interfac.h \
+  ../interfac/wincurs.h ../interfac/../bluemail/bmail.h \
+  ../interfac/../bluemail/resource.h ../interfac/../bluemail/service.h \
+  ../interfac/../bluemail/../common/mysystem.h \
+  ../interfac/../bluemail/driver/basic.h ../interfac/color.h
+mysystem.o: mysystem.cc mysystem.h auxil.h error.h ../interfac/interfac.h \
+  ../interfac/wincurs.h ../interfac/../bluemail/bmail.h \
+  ../interfac/../bluemail/resource.h ../interfac/../bluemail/service.h \
+  ../interfac/../bluemail/../common/mysystem.h \
+  ../interfac/../bluemail/driver/basic.h ../interfac/color.h
+uncoll.o: uncoll.cc

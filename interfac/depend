@@ -1,0 +1,76 @@
+addrbook.o: addrbook.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+ansiview.o: ansiview.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+arealist.o: arealist.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+bulletin.o: bulletin.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+color.o: color.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+filedbs.o: filedbs.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../bluemail/driverl.h ../common/auxil.h ../common/mysystem.h
+files.o: files.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h ../common/error.h \
+  ../common/mysystem.h
+help.o: help.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+interfac.o: interfac.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/error.h ../common/mysystem.h ../common/mysystem.h \
+  ../bluemail/service.h
+isoconv.o: isoconv.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+letterl.o: letterl.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+letterw.o: letterw.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h ../common/error.h \
+  ../common/mysystem.h
+main.o: main.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../bluemail/driverl.h ../common/error.h ../common/mysystem.h
+offline.o: offline.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+replymgr.o: replymgr.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+services.o: services.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+tagline.o: tagline.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h \
+  ../common/auxil.h ../common/mysystem.h
+wincurs.o: wincurs.cc wincurs.h color.h ../common/auxil.h \
+  ../common/mysystem.h
+window.o: window.cc interfac.h wincurs.h ../bluemail/bmail.h \
+  ../bluemail/resource.h ../bluemail/service.h \
+  ../bluemail/../common/mysystem.h ../bluemail/driver/basic.h color.h

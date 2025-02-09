@@ -1,0 +1,589 @@
+.TH blueMail 1 "April 16, 2010" "" "User Manual"
+
+.SH NAME
+bmail \- a multi-format offline mail reader
+
+.SH SYNOPSIS
+.B bmail
+
+.SH DESCRIPTION
+blueMail is a multi-format offline mail reader with a full screen, colored,
+curses-based user interface.
+
+It can handle multiple mail storage types by providing a appropriate
+.B service
+for every type. Within each service, several similar mail
+.B format
+types are supported by different
+.IR drivers :
+
+.TP 22
+.B Service
+.B Formats
+.TP 22
+Offline Mail Packets
+Blue Wave, Demo, Hippo, OMEN, QWK, QWKE, SOUP
+
+(Offline mail packets are used primarily by dialup BBSes, to save connect
+time, and to provide a better interface to the message base.)
+.TP 22
+Mail Files/Databases
+mbox, Eudora, BBBS Message Base, Hudson Message Base
+
+(All of them give full access to the whole file/database.)
+.TP 22
+Reply Packet Manager
+all formats above
+
+(The format must support replies \- if a format is marked by (ro) it does not
+support replies \- and must have been opened at least once.)
+.TP 22
+Demo Service
+built-in demo driver
+
+.SS USAGE
+The special, built-in demo driver will handle both demo service and demo
+packet by generating an area and a few messages allowing you to get a first
+impression of blueMail and test some (but not all) of its features. So if
+you'd like to test blueMail, use the demo service. If you'd like to test the
+offline mail packet service, but have no offline mail packet, you can use a
+demo packet, i.e. an empty file, size 0 bytes, named demo.pkt, compressed and
+packed into an archive with arbitrary name. Both, the demo service and the
+demo packet allow replying, but the demo service won't save any status
+information, thus starting the next time as if never be called before.
+
+To get help, press F1 or '?' in any window. In most windows, the general
+commands available throughout the program will be shown, while in the
+mail-reading window and ANSI viewer you'll see the commands available there.
+On most screens, the available keystroke commands are displayed in the lower
+part of the screen.
+
+The navigation keys, most of which work throughout the program, consist of
+the standard cursor and keypad keys:
+
+Up       =  up
+.br
+Down     =  down
+.br
+PageUp   =  scroll page up
+.br
+PageDown =  scroll page down
+.br
+Home     =  top
+.br
+End      =  bottom
+.br
+Left     =  previous
+.br
+Right    =  next
+.br
+Enter    =  select
+.br
+Esc      =  cancel
+.br
+
+For terminals without full support for these keys, aliases are available for
+some of them:
+
+Esc      =  Q, or Backspace, or CTRL-H
+.br
+PageDown =  Space
+.br
+
+Other keys (Meta-key is ALT-key in DOS, Windows, OS/2 and some Unix
+terminals) working throughout the program are:
+
+Del      =  Kill
+.br
+Meta-D   =  Invoke shell (type 'exit' to return)
+.br
+Meta-P   =  Call user program (see
+.BR bmailrc (5)
+for details)
+.br
+Meta-Q   =  Back to service list
+.br
+Meta-X   =  Exit immediately from program
+.br
+/        =  Search
+.br
+.RB ".        =  Find next" ""
+.br
+|        =  Filter
+.br
+
+All characters may be entered unshifted.
+
+Of special note is the space bar. In most areas of the program, it functions
+as an alias for PageDown; but in the mail-reading window, it works as a
+combination PageDown/Enter key, allowing you to page through an area with one
+key.
+
+Another special key in the mail-reading window is Tab, which skips all
+messages with the same subject. If messages are sorted by subject (which is
+the default), this key allows you to glance over the topics of an area.
+
+The left and right cursor keys often work "with intelligence", i.e. they jump
+to the previous or next unread letter, or area with messages, for example.
+
+In the letter list, '+' and '-' can be used to scroll the subject.
+
+.SS LONG AND SHORT LISTS
+Some lists (like the area list and letter list) can be toggled between the
+long view and the short one. The long list shows all items available, i.e.
+all subscribed areas or all letters written in an area, whereas the short
+list only shows relevant items, i.e. only areas containing letters or only
+letters still unread.
+
+In the area list, the short list can be influenced by marking areas with
+the '=' key. If any area is marked, the short list will show now only marked
+areas containing letters. Thus, it is possible to have a kind of personal
+favourite area list.
+
+The reply area (letters written by you) will always appear in either list.
+
+.SS INPUT FIELDS
+Inputs in blueMail are handled by editable input fields. The initial display
+in an input field is a proposal value. If the first character entered is a
+normal one (letter, number, etc.), the input will be erased and overwritten.
+In order to accept the proposal and edit it, an arbitrary navigation key must
+be pressed first. Navigation keys allow to move within the input since text
+broader than the field width can be scrolled to the left and right. The
+navigation keys are: Home, End, left and right cursor key, Del, Ins,
+Backspace.
+
+By default, the cursor is in insert mode. Only normal characters are accepted
+as input, as long as there isn't pointed out that "hotkeys" are available
+like those for setting the netmail status flags. (Meta-D will always work
+during input.) Invalid characters will be recognized, but not accepted for
+input, which can be used to clear the proposal value by pressing a CTRL-key
+first. (I strongly recommend to use CTRL-L, as other CTRL-keys may get
+different meanings in the future.)
+
+You can navigate through input fields by moving the cursor up or down (or
+pressing Tab which is equivalent to cursor down). When you are done, press
+Enter in the last (or only) field to accept the input. Pressing Esc will
+abort input and discard all changes made in the input field.
+
+The fields of the input box for entering letter headers will consider the
+input of a question mark as a command to call the addressbook.
+.br
+If the subject field is empty when calling the addressbook, the default
+subject from the addressbook (if any) will be used. If the subject field does
+already contain some input when calling the addressbook, this input will be
+preserved. Entering a question mark into the subject field to call the
+addressbook will erase the field prior to calling the addressbook, resulting
+in the default subject (if any).
+.br
+To enter a literal question mark into the subject field, enter a question
+mark and space (blank character).
+
+.SS SEARCHING
+A case-insensitive substring search function is available in all windows
+(except help windows). You can search the contents of all lines, even within
+the truncated parts.
+.br
+You cannot search for: sizes and letter counts in the file lists, marks and
+area numbers and letter counts in the area list, status flags and message
+numbers in the letter list.
+.br
+To search for the marks in the reply manager and offline configuration
+windows, simply enter the mark plus a space (blank character).
+
+For a new search, press '/' and enter the text to look for. The search starts
+now at the beginning of the list or message and will stop, if a line is found
+that contains the text. (You can abort a running search process by pressing
+any key.) Press '.' to continue the search from below the current line. The
+continuation is possible, even if you manually adjust the starting line.
+
+To search for lines NOT containing the text, enter '!' as first character of
+the text. (To literally search for something starting with an exclamation
+mark, precede it with a backslash character: '\\!'. To literally search for
+something starting with '\\!', precede it with another backslash character,
+and so on. A text consisting of a single exclamation mark is automatically
+taken literally.)
+
+An entered search text remains valid throughout all windows. To manually
+clear a search text, enter an empty text. Pressing Esc at the search input
+prompt leaves the search text as it is, which can be used to look up the
+actual setting.
+
+.SS FILTERING
+A case-insensitive substring filter function is available in all list windows
+(but not in the help or message windows). You can filter on the contents of
+all lines, even the truncated parts, and there are the same restrictions as
+for searching. (There is a special, additional function in the letter list
+which allows filtering on the contents of the letter bodies.) In the area
+list, the reply area "Letters written by you" will always match any filter.
+
+To start filtering, press '|' and enter the text to filter on. The list will
+now be reduced to lines only containing the text, and a diamond sign will
+appear in the window's upper right corner to indicate that filtering is
+active and that only a part of the list is shown.
+
+To reduce to lines NOT containing the text, enter '!' as first character of
+the text. (To literally filter on something starting with an exclamation
+mark, precede it with a backslash character: '\\!'. To literally filter on
+something starting with '\\!', precede it with another backslash character,
+and so on. A text consisting of a single exclamation mark is automatically
+taken literally.)
+
+Searching (like other commands) in a filtered list will only work on the
+listed lines, i.e. lines matching the filter, and changing the sort order
+doesn't clear the filter. A new filter command itself will \- of course \-
+work on all, not only the filtered lines.
+
+A filter remains valid when entering "lower levels" and will be cleared when
+quitting to "upper levels", i.e. a filter in the area list will be retained
+when entering a letter list, but cleared when quitting back to the file
+list.
+
+To manually clear an active filter, enter an empty text. Pressing Esc at the
+filter input prompt leaves the filter as it is, which can be used to look up
+the actual setting.
+
+.SS ANSI VIEWER
+If a message contains ANSI color codes (which will appear as gibberish in the
+mail-reading window), you may be able to view it as originally intended by
+activating the ANSI viewer. Press 'v' to start it. Press 'q' to leave the
+ANSI viewer; the navigation keys are the same as in the mail-reading window.
+
+The ANSI viewer includes support for animation. While in the ANSI viewer,
+press 'v' to animate the picture. After the animation is done, press any key
+to return to the viewer mode. (While animating, press any key to abort the
+animation and return to the viewer mode.)
+
+While automatically showing bulletins (messages and new file lists) on
+opening a packet, you can navigate through the ANSI windows using the left
+and right cursor and the Enter key. Pressing 'q' leaves the bulletin list.
+
+.SS THE REPLY PACKET MANAGER
+Whenever blueMail opens a mail format that supports replies, it stores
+necessary information to handle replies for the system the mail came from
+in a "system information file" in its
+.I inf
+directory (see
+.BR bmailrc (5)
+for details). Systems, for which such an information file exist, will show up
+in the reply packet manager list. To get rid of a specific system's entry,
+the system's information file must by deleted.
+
+With the help of the reply manager it is possible to open reply packets
+without having to have access to the mail (packet, file, database etc.)
+the reply belongs to. Replies can be edited, killed and stored again in
+a reply packet. It is even possible to created a completely new reply packet,
+or to delete existing ones.
+
+If a \- probably old \- reply packet contains a reply in an area not longer
+existing, this reply will be assigned the "Letters written by you", i.e. the
+reply area itself. It is possible to open and read such replies, but they
+cannot be saved and must be moved to a different (existing) area before, of
+which blueMail will remind. You can choose then to discard your modifications
+or to go back and move the reply.
+
+.SS REPLIES
+If you create reply messages and leave blueMail, it stores the replies into a
+single file (either a packet or a collection \- see below), one per mail
+format type and system the mail came from. These reply files can be found in
+the
+.I reply
+directory (see
+.BR bmailrc (5)
+for details).
+
+The offline mail packet service stores into packets, so simply take such a
+reply file and transfer it back to program where the mail came from. The
+reply packet formats for offline mail are well defined and blueMail creates
+reply packets which entirely follow those definitions. The program the mail
+came from will know how to process the reply packet.
+
+The mail file/database service gathers replies into
+.IR collections ,
+and the single files (replies) inside such a collection can be extracted with
+.BR bmuncoll ,
+a tool provided with blueMail (see
+.BR bmuncoll (1)
+for details). The single replies inside a collections have a format
+"suitable" to the mail format, i.e.
+
+.TP 22
+.B Mail Format
+.B Reply
+
+.TP 22
+mbox, Eudora
+Collection:
+.IR mbox.col ,
+inside: plain messages conforming to RFC 822, suitable for mail transport
+agents.
+
+.TP 22
+BBBS Message Base
+Collection:
+.IR bbbs.col ,
+inside: plain message body text files, suitable for use with the
+.I bbbs btxt2bbs
+command (see the BBBS sysop manual for details). The filename scheme is
+conference number plus serial number extension.
+
+An additional control file named
+.I import
+.RI ( import.bat
+in DOS, Windows or OS/2), included in the collection, contains the necessary
+commands to import all the replies with their headers to the BBBS message
+base. In order to be able to use this file, you must set environment variable
+.B BBBSDIR
+(see the BBBS sysop manual for details), as well as an environment variable
+named
+.B PWD
+which must contain the current working directory (i.e. the directory the
+files from inside the collection are stored in). Then simply execute this
+control file as a script or batch file.
+
+.TP 22
+Hudson Message Base
+Collection:
+.IR hudson.col ,
+inside: messages conforming to FTS-0001, suitable for programs which can put
+Fido *.MSG files into the Hudson Message Base. The filename scheme is board
+number plus serial number extension.
+
+An additional control file named
+.I import
+.RI ( import.bat
+in DOS, Windows or OS/2), included in the collection, contains the necessary
+commands to import all the replies into the adequate boards of the Hudson
+Message Base. In order to be able to use this file, you must set an
+environment variable
+.B HMBWRITE
+pointing to a program which must be able to process board number as first and
+the *.MSG file name as second argument. Then simply execute this control file
+as a script or batch file.
+
+.PP
+Hence, simply "uncollect" the replies and either pass them one by one to an
+external program for direct processing, or store them somewhere for later
+processing.
+
+.SS OFFLINE CONFIGURATION
+Offline configuration is limited to subscribe (add) and unsubscribe (drop)
+areas. It is available by pressing 'o' in the area list, but only if the mail
+format type supports this (most offline mail packets do).
+
+The offline configuration information inside Blue Wave reply packets created
+by blueMail is compatible with old reply packet version 2 as well as newer
+packet version 3. blueMail can read both versions.
+
+In QWK mode, there is no reliable information on which area is subscribed.
+The only supported offline configuration method is the DOOR.ID file method,
+and one command per control message (command entered in the subject line). To
+change the configuration, use the offline configuration dialog, don't change
+or edit a control message.
+
+In SOUP mode, you can manually enter subscriptions. If a LIST file is
+present, its content will be available in the offline configuration dialog.
+
+.SS CHARACTER SETS
+At startup, blueMail assumes that your terminal uses the ISO 8859-1 character
+set (aka Latin-1), which is standard on most Unix systems, while the DOS,
+Windows or OS/2 versions of blueMail start up assuming the IBM PC character
+set (codepage 437). You can override these defaults using option
+.IR ConsoleCharset .
+See
+.BR bmailrc (5)
+for details.
+
+Messages are considered to be in the IBM PC character set, unless there is
+some character set information stored in the message (such as a CHRS or
+CHARSET klugde) which blueMail uses for an automatic character set
+recognition. It then translates between these character sets when displaying
+messages and creating replies. Replies are stored using the character set
+demanded by the responsible reply driver.
+
+You can toggle the translation on or off by pressing 'c' while reading a
+message (or in the letter list, or area list). If some characters appear as
+junk, try pressing 'c'; or '#' if the message is rot13 encoded.
+
+(Actually, the only supported character sets are IBM437 and ISO 8859-1, but
+some other character sets will be recognized, too: US-ASCII, CP437 and
+X-CP437 are treated as IBM437. WINDOWS-1252, CP1252 and ISO 8859-15 are
+treated as ISO 8859-1. UTF-8 within these limits is supported, too.)
+
+There is decoding support for quoted-printable encoded messages, which is
+active by default for all drivers handling Internet style messages. You can
+manually toggle it on or off by pressing '=' while reading a message.
+
+.SS NOTES
+The Escape key works to back out from most screens and cancels warning
+windows, but after you press it, you'll have to wait a bit for it to be
+sensed with ncurses (not true with PDCurses).
+
+Editing and deletion of old replies are available through the REPLY area,
+which always appears at the top of the area list. This differs from Blue
+Wave and some other readers.
+
+The Blue Wave reply packets created by blueMail are compatible with old reply
+packet version 2 as well as newer packet version 3, which should cover all
+mail door types still existing. blueMail can read both versions.
+
+Only Blue Wave style taglines (beginning with "... ") are recognized by the
+tagline stealer. It is not necessary for the tagline to be visible on the
+screen to be taken.
+
+In Internet style messages written by you, a selected tagline becomes a
+signature line if a signature file isn't specified.
+
+Netmail only works in Blue Wave and QWKE mode. In Blue Wave mode it supports
+all important FidoNet style message flags. In QWK mode, the private flag is
+supported for echo areas. Incoming messages show all flags being set.
+
+QWKE fully supports long lines for the from, to and subject headers as well
+as netmail and Internet style areas.
+
+The "Save" and "Print" dialogs give choices of personal, marked, listed
+messages, or a single (this) one. They do not alter any status flags set or
+unset on messages.
+
+If it is necessary to use file locking (like for the mail file/database
+service which will co-operate with other running applications using the same
+locking scheme while accessing the file/database), blueMail does so by using
+the SHARE.EXE locking in the DOS and OS/2 versions, fcntl() locking in the
+Windows version and flock() locking else. For mbox mail files it uses
+lockfile locking, too.
+
+In BBBS mode, blueMail will show messages which are killed in BBBS,
+which is necessary in order to co-operate with a running BBBS. These killed
+messages get status "marked" in blueMail which is displayed but cannot be set
+or unset. The lastread pointers used and updated are the SysOp ones, you can
+decide whether BBBS user #0 or user #1 is SysOp (see
+.BR bmailrc (5)
+for details). You must not run "bbbs bpc" or "bcfg4" to modify conferences
+while blueMail is running and accessing the BBBS Message Base!
+
+In BBBS, Hippo and OMEN mode, messages read by receiver will be displayed
+with status "Rcvd".
+
+In Hippo and OMEN mode, the from and date headers of a reply remain empty
+according to the specifications of these offline packet formats. (However,
+in OMEN mode, it is possible to use an alias name in areas where aliases are
+allowed, and from headers will be stored in these areas.)
+.br
+While the date field remains empty in the reply display, too, the user name
+defined in the configuration file (see
+.BR bmailrc (5)
+for details) will be shown in the display of reply headers. (In OMEN mode and
+areas allowing aliases, the stored from header will be shown.)
+
+In OMEN mode, due to a limitation in the OMEN specification, only up to 100
+replies are possible per reply packet. If there are more and you try to
+create a reply packet, you'll get a general "unable to save replies" error
+message.
+
+In SOUP mode, a reply in a newsgroup honours a "Followup-To", if it's present
+in the message, or the complete "Newsgroups" line else which means that
+cross-postings are fully supported for replies. A reply into a different area
+is treated as a posting into this single newsgroup only. You can always edit
+the "In:" field of the input box for entering letter headers to create
+cross-postings.
+
+In SOUP and mbox mode, an e-mail reply honours a "Reply-To" if present in the
+message.
+
+In Hudson mode, any local echomail without message attribute "unmoved
+outgoing echo" will be shown with status "Sent" though this status is
+normally only available for netmail.
+.br
+The following kludge lines will be added to a netmail reply: MSGID, CHRS,
+INTL, FMPT, TOPT, FLAGS and PID. MSGID and CHRS, as well as an origin line
+will be added to echomail, too.
+
+.SH FILES
+The only hardwired file is the configuration file:
+.TP 20
+.I .bmailrc
+user configuration file for blueMail
+.RI ( bmail.rc
+in DOS or OS/2)
+.PP
+Other permanent files are placed in the blueMail main directory. Directories
+specified in
+.I .bmailrc
+are created automatically, if possible.
+
+See
+.BR bmailrc (5)
+for details.
+
+.SH ENVIRONMENT
+.TP 20
+BMAIL
+The home directory to be used for blueMail. It takes precedence over
+.BR HOME .
+.TP 20
+HOME
+The home directory to be used for blueMail, if
+.B BMAIL
+isn't defined.
+.TP 20
+EDITOR
+The default editor to use (can be overridden in
+.IR .bmailrc ).
+.TP 20
+TEMP/TMP
+Depending on the implementation, this is where temporary files are stored.
+(Only used if the operation system itself uses these variables \- like DOS,
+Windows or OS/2 do.)
+.PP
+The use of the time zone environment variable
+.B TZ
+and the locale environment variables
+.B LC_COLLATE
+and
+.B LC_CTYPE
+is recommended. See
+.BR tzset (3)
+and
+.BR locale (5)
+for details.
+
+When blueMail identifies a mail format and loads a driver to handle it, it
+stores an unique identification string into the environment variable
+.BR BMDRIVER .
+The
+.I strings
+corresponding to (mail format) are:
+
+.I BBBS
+(BBBS Message Base),
+.I Blue Wave
+(Blue Wave),
+.I Demo
+(Demo),
+.I Hippo
+(Hippo),
+.I Hudson
+(Hudson Message Base),
+.I OMEN
+(OMEN),
+.I QWK
+(QWK),
+.I QWKE
+(QWKE),
+.I SOUP
+(SOUP),
+.I mbox
+(mbox, Eudora).
+
+.SH BUGS
+If you find any bugs, or have ideas for improvement, please write to me.
+
+.SH AUTHOR
+blueMail is being developed by Ingo Brueckl <ib@wupperonline.de> and based on
+work previously done by Kolossvary Tamas, Toth Istvan, John Zero, and William
+McBrine.
+
+.SH SEE ALSO
+.BR bmailrc (5),
+.BR bmuncoll (1),
+.BR tzset (3),
+.BR locale (5)

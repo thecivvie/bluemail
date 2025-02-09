@@ -1,0 +1,791 @@
+.TH bmailrc 5 "April 17, 2010" "" "User Manual"
+
+.SH NAME
+.RI ".bmailrc \- user configuration file for blueMail"
+
+.SH DESCRIPTION
+The blueMail configuration file allows to change blueMail's look or behaviour
+and is divided into different sections. Each section starts with a
+.I [Section]
+name which only exist for the benefit of a structured configuration file,
+actually they are treated as comments. A line beginning with # is a comment,
+too.
+
+Each section contains options; one option per line. An option consists of an
+option
+.I name
+and an option
+.I value
+separated by a colon.
+
+.SS
+.B [Directories]
+The directory section contains the options concerning the directories
+blueMail uses; using directory options require full path names to be
+specified.
+.TP
+.B home
+The home directory to be used after startup (default: given by \- in this
+order \- environment variable
+.B BMAIL
+or
+.B HOME
+or the current directory).
+.TP
+.B bmail
+The blueMail main directory to store the addressbook, the tagline and
+statistics file etc. (default:
+.BI home /bmail\fR).
+.TP
+.B packet
+The directory where the bbs packet(s) for the offline mail packet service can
+be found (default:
+.BI bmail /down\fR).
+.TP
+.B reply
+The directory where the reply packet(s) will be created which you have to
+upload to the bbs or process by other means (default:
+.BI bmail /up\fR).
+.TP
+.B save
+The directory where messages will be saved (default:
+.BI bmail /save\fR).
+If during the save dialog a file name is given with an absolute path (i.e.
+with a leading slash, or backslash or drive letter in DOS, Windows or OS/2),
+the file will be saved in the given path instead.
+.TP
+.B inf
+The directory where system related information files will be stored, like the
+system information for the reply manager and the information about marked
+areas (default:
+.BI bmail /inf\fR).
+(The timestamp and name of a system information file are important parts of
+the information and should not be modified.)
+.TP
+.B work
+The directory where a temporary working directory (removed when blueMail
+quits) for uncompressing etc. will be created (default: system-dependent,
+or given by environment variable
+.B TEMP
+or
+.BR TMP ,
+or in
+.IR /tmp ).
+.TP
+.B HudsonMsgBase
+The directory where your Hudson Message Base is stored (default: none). The
+specification of a path causes the activation of an appropriate entry in the
+mail file/database service list.
+.TP
+.B BBBSMsgBase
+The directory where your BBBS Message Base is stored, i.e. the BBBS
+.I main
+directory (default: none). The specification of a path causes the activation
+of an appropriate entry in the mail file/database service list.
+.TP
+.B mboxes
+The directory where multiple \- Berkeley format (mbox) \- mail files are
+stored (default: none). The specification of a path causes the activation of
+an appropriate entry in the mail file/database service list.
+
+.SS
+.B [Files]
+The file section contains the options concerning the files used. Most of the
+files are stored in the blueMail main directory
+.RB ( bmail )
+by default; using file options require full path names to be specified.
+.TP
+.B addressbook
+The addressbook file (default:
+.BI bmail /addressbook\fR,
+or
+.BI bmail /address.bk
+in DOS or OS/2).
+.TP
+.B taglines
+The taglines file (default:
+.BI bmail /taglines\fR).
+.TP
+.B signature
+The signature file that should be appended to each letter; a signature isn't
+used unless specified here (default: none). (See
+.BR bmail (1)
+for the effect of selecting a tagline without signature file.)
+.TP
+.B statistics
+The statistics file (default:
+.BI bmail /stats\fR)
+holding the information about unread/total messages (like shown in the file
+list window). This file is automatically maintained by blueMail and
+self-reorganizing. If this file does not exist, it will be created. You may
+delete this file at any time (temporarily losing the information, though).
+.TP
+.B mbox
+The location of your \- Berkeley format (mbox) \- mail file (default:
+environment variable
+.BR MAIL ).
+The specification (of a file with complete path) causes the activation of an
+appropriate entry in the mail file/database service list.
+
+(Compatible with this format: Eudora mailbox.)
+.TP
+.B AreasHMB
+The location of your AREAS.HMB file. This file is almost identical to a
+standard AREAS.BBS file, i.e. it contains the Hudson Message Base board
+numbers, optional board descriptions and optional addresses (one definition
+per line, separated by spaces, comment lines start with semicolon, empty
+lines will be ignored). The only difference to a standard AREAS.BBS file is
+that the address belonging to a board isn't the uplink/downlink address, but
+the address you are using in conjunction with this area. If the address is
+missing, the area will be read-only.
+.br
+Netmail areas will be recognized automatically, but this is only possible if
+the area contains messages. If the recognition is impossible (or fails) you
+may define netmail areas by adding a comment line starting with
+.RI """" "; Netmail: " """"
+and followed by a list of netmail board numbers separated by spaces.
+
+.SS
+.B [Commands]
+The command section contains the options concerning system commands blueMail
+needs to execute. The (un)compression commands are selected automatically
+depending on the type of the mail packet to be opened and must include an
+option to junk/discard path names.
+.TP
+.B arjUncompress
+Command to uncompress arj archives (default:
+.I unarj
+.RI "" e ", or " arj
+.RI "" e " in DOS or Windows)."
+.TP
+.B zipUncompress
+Command to uncompress zip archives (default:
+.I unzip -j -o
+.RI "" -L ", or " pkunzip " in DOS)."
+.TP
+.B lhaUncompress
+Command to uncompress lha archives (default:
+.I lha
+.RI "" efi ", or " lha
+.RI "" e " in DOS or Windows)."
+.TP
+.B unknownUncompress
+Command to uncompress unknown archives (default: none).
+.TP
+.B arjCompress
+Command to compress arj archives (default: none, or
+.I arj a -e -hf
+in DOS, and
+.I arj a -e
+in Windows).
+.TP
+.B zipCompress
+Command to compress zip archives (default:
+.I zip
+.RI "" -j ", or " pkzip " in DOS)."
+.TP
+.B lhaCompress
+Command to compress lha archives (default:
+.I lha
+.RI "" a ", or"
+.I lha a /m
+in DOS or Windows).
+.TP
+.B unknownCompress
+Command to compress unknown archives (default: none).
+.TP
+.B editor
+The editor to be called for message editing (default: given by environment
+variable
+.BR EDITOR ,
+else
+.IR vi ,
+or
+.I edit
+in DOS, or
+.I start /w notepad
+in Windows, or
+.I tedit
+in OS/2).
+.TP
+.B print
+The program (default: none) to be called for message printing. (Even DOS,
+Windows or OS/2 printing won't be direct, but must be performed by means of
+\- for example \- a batch file, because this provides greater flexibility.)
+.TP
+.B userpgm
+A user definable program (default: none) that will be called by blueMail when
+pressing Meta-P. If there is a
+.I @P
+in this command, blueMail will (prior to calling) prompt for a parameter and
+insert it in place of the first occurrence of parameter placeholder
+.IR @P .
+
+.SS
+.B [Strings]
+The string section contains the options for user definable strings.
+.TP
+.B UserName
+The name used to identify personal mail (i.e. mail addressed to you) for
+mail formats that don't know about the user's name (default:
+.IR """""" ).
+.TP
+.B EmailAddress
+Your Internet e-mail address (default: none) consisting of your full name and
+the address itself in a format following the RFC standards, like
+.IR "full name <address>" ,
+or
+.IR "address (full name)" .
+(Please note that the option UserName above WILL NOT BE automatically part of
+your EmailAddress. The e-mail address will exactly be used as given here.)
+.TP
+.B QuoteHeaderFido
+The quote header placed at the beginning of replies in FidoNet style areas.
+For customizing, several macros can be used which will be expanded (limited
+to a result of a maximum of 255 characters) before writing the string to a
+reply (default:
+.IR "-=> @O wrote to @R <=-@N" ).
+The macros allowed are:
+
+.IR @f " = FROM: first name"
+.br
+.IR @F " = FROM: last name"
+.br
+.IR @O " = FROM: full name (originator)"
+.br
+.IR @A " = originator's netmail address"
+.br
+.IR @t " = TO: first name"
+.br
+.IR @T " = TO: last name"
+.br
+.IR @R " = TO: full name (recipient)"
+.br
+.IR @S " = subject"
+.br
+.IR @D " = message date"
+.br
+.IR @N " = new line"
+.br
+.IR @@ " = @"
+.br
+.IR @<space> " = <space> (for a space at the beginning)"
+.br
+.TP
+.B QuoteHeaderInternet
+Same as
+.B QuoteHeaderFido
+above, but for Internet style areas (default:
+.IR "On @D, @O wrote:@N" ).
+.TP
+.B ToAll
+This will be used for the recipient field of new echomail (default:
+.IR All ).
+.TP
+.B UpperLower
+This will allow case-insensitive comparison between non-ASCII (i.e. 8-bit)
+characters (such as German Umlaute) even on systems without locale settings.
+Don't set this option if you prefer the system's locale (which generally is
+the better choice).
+
+The string (default:
+.IR """""" )
+is a list of mappings from upper case to lower case letters. Each mapping is
+a pair of an upper case and a lower case letter without any separation. The
+different pairs (members of the list) follow one after another without any
+separation. Thus, the length of the string must be even.
+.TP
+.B Origin
+The string (default:
+.IR """""" ,
+limited to a maximum of 40 characters) to be used in the origin line.
+.TP
+.B Organization
+A string (default: none, limited to a maximum of 64 characters) which
+describes the organization the messages come from \- for drivers supporting
+this, like the SOUP packet driver.
+.TP
+.B IsPersonal
+The string (default:
+.IR """""" )
+that should be used to identify personal messages (i.e. messages addressed to
+you) by scanning the contents of the messages, necessary for drivers not
+supporting a direct recipient \- like the SOUP packet driver (where from
+header lines won't be scanned). You should specify your full name or your
+Internet e-mail address here, but please keep in mind the insufficiency of
+this method.
+.TP
+.B ReplyExtension
+A string (default: archiver extension, limited to a maximum of 3 characters
+or digits) used as file name extension for reply packets which don't have a
+determined name, like SOUP reply packets.
+
+.SS
+.B [Settings]
+The setting section contains options to change blueMail's appearance or
+behaviour. The values allowed may be given in upper or lower case characters.
+.TP
+.B ConsoleCharset
+The character set the terminal you are running blueMail on uses. If the
+automatically selected character set, which is Latin-1 (ISO 8859-1) for the
+Unix version and IBMPC (codepage 437) for the DOS, Windows or OS/2 version
+(see
+.BR bmail (1)
+for details), is the wrong one, you can change it here. Values allowed:
+.IR Latin-1 ,
+.IR IBMPC .
+.TP
+.B StartupService
+When blueMail starts, it normally presents a list of services that are
+available. This list can be skipped and a specific service can be
+auto-selected. Values allowed:
+.IR packet ,
+.IR file ,
+.IR archive ,
+.IR reply .
+.TP
+.B SortFilesBy
+How the files in the file list windows should be sorted at startup. Values
+allowed:
+.I name
+(which is the default),
+.I date
+(which sorts from the newest to oldest!).
+.TP
+.B SortLettersBy
+How the letters in the letter list window should be sorted at startup. Values
+allowed:
+.I subject
+(which is the default),
+.IR number ,
+.IR "last name" .
+(If letters are sorted by subject or last name, letters with same subjects or
+last names will be sorted by their message numbers.)
+.TP
+.B SortNetmailBy
+How the letters in a netmail letter list window should be sorted at startup.
+Values allowed:
+.IR subject ,
+.IR number ,
+.IR "last name" .
+The default is given by
+.BR SortLettersBy .
+.TP
+.B SortSystemsBy
+How the entries in the reply packet manager list window should be sorted at
+startup. Values allowed:
+.I name
+(which is the default),
+.I date
+(which sorts from the newest to oldest!).
+.TP
+.B Quote-O-Meter
+blueMail has an internal quote percentage calculator that can help you to
+keep the amount of quoted material in your replies under control. When
+quoting messages, it is always best to keep the amount of quoted material to
+only the essential clips of text that you need by deleting lines that are
+unnecessary. The Quote-O-Meter default is
+.IR 50% ,
+which means that after editing your reply, the reader will scan it and warn
+you if over 50% of it is quoted material. If you exceed the threshold
+designated here, you'll immediately be given the option of re-editing your
+message or continuing. (To disable the option, set it to 100%.)
+.TP
+.B ClockMode
+The display mode of the clock in the letter header. Values allowed:
+.I time
+(which is the default if blueMail is compiled WITH_CLOCK support),
+.I off
+(which is the default else), or
+.I elapsed
+(shows the time since blueMail started).
+.br
+Pressing ':' in the letter window toggles between time and elapsed mode.
+.TP
+.B MIMEBody
+The mechanism used, if a message body must be MIME-encoded. Values allowed:
+.I quoted-printable
+(which is the default), or
+.IR 8bit .
+This only affects the body of a message. Header fields, if necessary, will
+always be encoded in quoted-printable. The character set used for both header
+fields and bodies will be ISO 8859-1.
+.TP
+.B OverlongReplyLines
+When preparing a message text for reply, blueMail ensures that the maximum
+line length won't exceed 78 characters. While normal message text will be
+reformatted in order to guarantee this, already quoted text won't, and thus
+may exceed the 78 characters limit. This option only affects second-level
+quote lines, i.e. lines which are already quoted in the message you are going
+to reply, if they are too long and must be split. Values allowed:
+.I quote
+(which prepends a simple second-level quote mark to the continuation part(s)
+and is the default), or
+.I fold
+(which simply folds the line leaving the continuation part(s) unquoted), or
+.I permit
+(which leaves such overlong lines as they are \- please keep in mind that
+these lines may cause trouble when being viewed by others).
+
+.SS
+.B [Miscellaneous]
+The miscellaneous section contains those options to change blueMail's
+appearance or behaviour which are off by default. To set them on, the option
+value must be set to
+.I yes
+or
+.I y
+(upper or lower characters).
+.TP
+.B SuppressAreaListInfo
+Use the space of the area info window (info on the packet, area type) for
+the main area list at startup. (You can toggle the display in the area list.)
+.TP
+.B LongAreaList
+Display an area list containing all active (i.e. subscribed, in the BBS
+selected) areas, whether there are letters in it or not (can be changed by
+pressing 'l' in the area list).
+.TP
+.B SaveLastreadPointers
+Don't ask, automatically save the last read pointers when blueMail quits.
+.TP
+.B LongLetterList
+Display a letter list containing read and unread letters (can be changed by
+pressing 'l' in the letter list).
+.TP
+.B FullsizeLetterList
+Don't adjust the letter list size (lines) to the number of letters, always
+show a full screen size letter list.
+.TP
+.B SmartScrollLetterList
+In case of scrolling up or down a single line, a whole page will be scrolled
+instead and the selectable letter will be at the bottom or the top of it.
+.TP
+.B SkipLetterList
+When selecting an area from the area list, directly show the first letter,
+skip the letter list (only if there is an unread letter in the list).
+.TP
+.B SuppressLineCounter
+Do not show a line counter in the letter header.
+.TP
+.B EnableSigdashes
+Support for the common USENET news convention of preceding a message
+signature with a special line consisting of the three characters "-- "
+(i.e. dash, dash, and space).
+.TP
+.B DisplayKludgelines
+Display the additional information embedded in a message that start with
+ASCII character 1 (can be changed by pressing 'x' in the letter).
+.TP
+.B BeepOnPersonalMail
+Beep when displaying a letter addressed to you (or your alias name).
+.TP
+.B SkipTaglineBox
+Don't ask for a tagline to be appended to a new letter. (To append a tagline
+to a specific letter with this option set, open the tagline window and select
+one before entering or replying a letter.)
+.TP
+.B StripRe
+Strip all the "Re: " prefixes from the incoming messages' subject lines.
+.TP
+.B OmitReplyRe
+Don't prefix the subject line of a reply to a message with the "Re: " string.
+.TP
+.B ArrowNoQuote
+Consider the two characters "->" (i.e dash and greater) to be an arrow sign
+rather than a mark for a quoted part of a message.
+.TP
+.B Pos1Input
+Set the cursor onto the first character of the string in an input box rather
+than to the end of it.
+.TP
+.B StripSoftCR
+Completely ignore character ASCII 141, which is used as a "soft carriage
+return" in FidoNet.
+.TP
+.B DrawSortMark
+Mark the column by which the display is sorted by drawing an arrow behind the
+column name.
+.TP
+.B PersonalArea
+Collect and show all personal messages (i.e. messages addressed to you) in a
+separate area. (Note: This feature isn't supported by the mbox mail file
+driver. For the SOUP packet driver, you must set option IsPersonal above,
+too. For the QWK / QWKE packet driver, omit this option to only get a
+personal area if the personal index file is present, and set it off, i.e. to
+.I no
+or
+.IR n ,
+to never get a personal area.)
+.TP
+.B LetterMaxScroll
+Allow the last line of the message to be scrolled up to the top in the letter
+window and ANSI viewer. (The default is to stop scrolling when the last line
+of the message appears at the bottom.)
+.TP
+.B Transparency
+Makes the background color used in MainBackground (black by default, see
+below) transparent, i.e. all windows using this background color will become
+transparent and show the terminal's background instead (which will work only
+with ncurses and terminals that support this). Moreover, the background area
+isn't filled with any patterns.
+.TP
+.B OmitSystem
+Omits the operating system name from the blueMail version string written into
+messages, reply packets etc.
+.TP
+.B SaveReplies
+Don't ask, automatically save the content of the reply packet when blueMail
+quits.
+.TP
+.B OmitDemoService
+Don't add the demo service to the service list.
+.TP
+.B DrawReplyMark
+Mark entries in the reply packet manager list with a special character if a
+reply packet exists.
+.TP
+.B CallReplyMgr
+If the offline mail packet service cannot present any packet, because there
+are none available, the reply packet manager will be invoked instead.
+.TP
+.B OmitBulletins
+Don't show bulletins and new file lists on opening a packet, but only a short
+note.
+.TP
+.B SortAddressbook
+Display the addressbook entries sorted (by last names) at startup.
+.TP
+.B ClearFilter
+Don't automatically close windows where empty lists aren't allowed, but
+items can be edited, and an item that matches an active filter has been
+changed to no longer match the filter with the result that the list is empty
+now. Automatically clear the filter then and stay in the window.
+.TP
+.B BBBSUser#1
+By default, user #0 is SysOp of BBBS. If you are reading and writing your
+messages as this user, you don't need this option, but if you have registered
+another user (must be user #1) to read and write your messages, set this
+option. (This only affects which user's lastread pointers will be updated.)
+.TP
+.B IgnoreNDX
+Don't use the *.NDX index files in QWK / QWKE packets. Turn this option on if
+you get bogus packets from your BBS (making blueMail crash).
+.TP
+.B OmitEmptyQuotes
+Don't quote empty lines.
+.TP
+.B SaveAreaMarks
+Don't ask, automatically save the area marks when blueMail quits.
+.TP
+.B OmitAreaMarkInfo
+Don't inform if some areas are marked, none of it contains letters, option
+LongAreaList above isn't set and as a result no areas are displayed.
+
+.SS
+.B [Colors]
+The color section contains the options to adjust all the colors to the user's
+preference.
+
+blueMail presents information by using windows, and a typical window consists
+of several parts, like the
+.I list
+of its items, a
+.IR border ,
+a
+.I toptext
+(in the upper left of the border line), a
+.I header
+for the list of items, help
+.IR keys ,
+a
+.I description
+of the help keys and edit
+.I input
+fields/lines.
+
+The option names (hopefully self-explaining) are:
+.BR MainBorder ,
+.BR MainBackground ,
+.BR MainBottomSeparator ,
+.BR WelcomeBorder ,
+.BR WelcomeHeader ,
+.BR WelcomeText ,
+.BR HelpBorder ,
+.BR HelpText ,
+.BR HelpKeys ,
+.BR HelpDescription ,
+.BR ServiceListBorder ,
+.BR ServiceListTopText ,
+.BR ServiceList ,
+.BR FileListBorder ,
+.BR FileListHeader ,
+.BR FileList ,
+.BR ReplyMgrListBorder ,
+.BR ReplyMgrListHeader ,
+.BR ReplyMgrList ,
+.BR ReplyMgrListPacket ,
+.BR AreaListBorder ,
+.BR AreaListTopText ,
+.BR AreaListHeader ,
+.BR AreaListUnread ,
+.BR AreaListRead ,
+.BR AreaListReply ,
+.BR AreaListInfoDescription ,
+.BR AreaListInfoText ,
+.BR BulletinListBorder ,
+.BR BulletinListTopText ,
+.BR BulletinList ,
+.BR OfflineConfListBorder,
+.BR OfflineConfListTopText,
+.BR OfflineConfList,
+.BR OfflineConfListAdded,
+.BR OfflineConfListDropped,
+.BR LittleAreaListBorder ,
+.BR LittleAreaListTopText ,
+.BR LittleAreaList ,
+.BR LittleAreaListReadonly ,
+.BR LetterListBorder ,
+.BR LetterListClock ,
+.BR LetterListTopText ,
+.BR LetterListArea ,
+.BR LetterListHeader ,
+.BR LetterListUnread ,
+.BR LetterListRead ,
+.BR LetterListFromUser ,
+.BR LetterListToUser ,
+.BR LetterHeaderBorder ,
+.BR LetterHeaderMsgnum ,
+.BR LetterHeaderText ,
+.BR LetterHeaderFrom ,
+.BR LetterHeaderTo ,
+.BR LetterHeaderSubject ,
+.BR LetterHeaderDate ,
+.BR LetterHeaderFlags ,
+.BR LetterHeaderFlagsHigh ,
+.BR LetterText ,
+.BR LetterQuotedText ,
+.BR LetterTagline ,
+.BR LetterSignature ,
+.BR LetterTearline ,
+.BR LetterOrigin ,
+.BR LetterKludgeline ,
+.BR LetterBottomline ,
+.BR AnsiviewHeader ,
+.BR Ansiview ,
+.BR ReplyBoxBorder ,
+.BR ReplyBoxDescription ,
+.BR ReplyBoxText ,
+.BR ReplyBoxInput ,
+.BR ReplyBoxHelpText ,
+.BR FileBoxBorder ,
+.BR FileBoxHeader ,
+.BR FileBoxInput ,
+.BR QueryBoxBorder ,
+.BR QueryBoxHeader ,
+.BR QueryBoxInput ,
+.BR AddressbookBorder ,
+.BR AddressbookTopText ,
+.BR AddressbookHeader ,
+.BR AddressbookList ,
+.BR AddressbookInput ,
+.BR AddressbookKeys ,
+.BR AddressbookDescription ,
+.BR TaglineBoxBorder ,
+.BR TaglineBoxTopText ,
+.BR TaglineBoxList ,
+.BR TaglineBoxInput ,
+.BR TaglineBoxKeys ,
+.BR TaglineBoxDescription ,
+.BR WarningText ,
+.BR WarningKeys ,
+.BR InfoText ,
+.BR SystemCallHeader ,
+.BR SearchResult ,
+.BR Shadow .
+.TP
+A color option value must have the form
+
+.I foregroundcolor, backgroundcolor, attribute
+.P
+where
+.BR BLACK ,
+.BR BLUE ,
+.BR GREEN ,
+.BR CYAN ,
+.BR RED ,
+.BR MAGENTA ,
+.B YELLOW
+and
+.B WHITE
+are valid color names and
+.BR NORMAL ,
+.B BOLD
+and
+.B REVERSE
+valid attributes. All names may be written in upper or lower case, there may
+be blanks or tabs after the comma.
+.B NORMAL
+is the attribute for normal foreground and background colors,
+.B BOLD
+will cause the foreground color to be bright, and
+.B REVERSE
+will switch the foreground and background color.
+.TP
+Example:
+
+.BR WelcomeHeader :
+.BR magenta ,
+.BR black ,
+.B bold
+.P
+will set the header line in the welcome window (Welcome to blueMail Offline
+Mail Reader!) to bright magenta on a black background.
+
+If you omit a color or attribute value, the corresponding blueMail default
+value will be used which makes it easy to change either foreground or
+background color only.
+.TP
+Example:
+
+.BR WelcomeHeader :
+.RB , blue
+.P
+will set the background of the header line in the welcome window to blue,
+leaving foreground color and attribute untouched to their defaults.
+
+One color pair has a special meaning: WHITE on WHITE stands for the color
+pair that the terminal was using before blueMail started. This means that
+colors WHITE on WHITE cannot be used.
+
+.SH FILES
+.TP 20
+.I .bmailrc
+user configuration file for blueMail
+.RI ( bmail.rc
+in DOS or OS/2)
+.PP
+The environment variable
+.B BMAIL
+or
+.B HOME
+is used to find
+.IR .bmailrc .
+.B BMAIL
+takes precedence over
+.B HOME
+if it's defined. If neither is defined, the startup directory is used.
+
+Environment variables can't be used within
+.IR .bmailrc ,
+but
+.I ~/
+(or
+.I ~\e
+in DOS, Windows or OS/2) will be recognized and
+.I ~
+will replaced with the contents of the environment variable
+.BR HOME .
+
+.SH SEE ALSO
+.BR bmail (1)

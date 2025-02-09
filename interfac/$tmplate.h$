@@ -1,0 +1,30 @@
+class FooListWindow : public ListWindow
+{
+  private:
+    int noOfFoos, noOfListed;
+    Foo **foo;                  // Foo contains the data to be displayed
+    int *listed;
+    char *filter;
+    bool foosort;
+    char format[...];
+
+    void MakeChain();
+    void DestroyChain();
+    //void Select();
+    int noOfItems();
+    void oneLine(int);
+    searchtype oneSearch(int, const char *);
+    void askFilter();
+    void extrakeys(int);
+
+    friend int foosortbydata(const void *, const void *);
+
+  public:
+    FooListWindow();
+    ~FooListWindow();
+    void MakeActive();
+    void Delete();
+    void Quit();
+};
+
+int foosortbydata(const void *, const void *);

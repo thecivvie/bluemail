@@ -1,0 +1,73 @@
+address.o: address.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h
+area.o: area.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h ../common/error.h
+bmail.o: bmail.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h
+driverl.o: driverl.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h driverl.h ../common/auxil.h ../common/mysystem.h \
+  driver/demo.h driver/../bmail.h driver/bwave.h driver/bluewave.h \
+  driver/qwk.h driver/soup.h driver/omen.h driver/hippo.h driver/hmb.h \
+  driver/hudson.h driver/fido.h driver/mbox.h driver/bbbs.h \
+  driver/bbbsdef.h
+filelist.o: filelist.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h ../common/error.h
+filestat.o: filestat.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h
+letter.o: letter.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h
+reader.o: reader.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h
+resource.o: resource.cc resource.h driverl.h ../common/error.h \
+  ../common/mysystem.h ../common/auxil.h
+service.o: service.cc bmail.h resource.h service.h ../common/mysystem.h \
+  driver/basic.h ../common/auxil.h ../common/mysystem.h ../common/error.h \
+  ../common/uncoll.cc
+basic.o: driver/basic.cc driver/bluewave.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h
+bbbs.o: driver/bbbs.cc driver/bbbs.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/bbbsdef.h driver/bluewave.h \
+  driver/../../common/auxil.h driver/../../common/mysystem.h \
+  driver/../../common/error.h driver/../../common/mysystem.h
+bwave.o: driver/bwave.cc driver/bwave.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/bluewave.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h
+demo.o: driver/demo.cc driver/demo.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/mysystem.h
+hippo.o: driver/hippo.cc driver/hippo.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h
+hmb.o: driver/hmb.cc driver/hmb.h driver/../bmail.h driver/../resource.h \
+  driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/hudson.h driver/bluewave.h \
+  driver/fido.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h
+mbox.o: driver/mbox.cc driver/mbox.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h
+omen.o: driver/omen.cc driver/omen.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h
+qwk.o: driver/qwk.cc driver/qwk.h driver/../bmail.h driver/../resource.h \
+  driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h
+soup.o: driver/soup.cc driver/soup.h driver/../bmail.h \
+  driver/../resource.h driver/../service.h driver/../../common/mysystem.h \
+  driver/../driver/basic.h driver/../../common/auxil.h \
+  driver/../../common/mysystem.h driver/../../common/error.h \
+  driver/../../common/mysystem.h

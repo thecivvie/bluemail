@@ -1,0 +1,98 @@
+blueMail installation procedure
+===============================
+
+1. Make sure any needed packages are installed.
+
+    In addition to the blueMail package itself, you'll also need InfoZip
+    (and/or LHA, ARJ, etc.) to uncompress the packets and compress the
+    replies when using the offline mail packet service. You can get InfoZip
+    at:
+
+    ftp://ftp.freesoftware.com/pub/infozip/src
+
+    In DOS, you can use PKZIP instead of InfoZip.
+
+    To compile blueMail, you'll need curses -- either ncurses, SysV
+    curses (e.g., Solaris curses), or PDCurses. You can get ncurses from:
+
+    http://www.gnu.org/software/ncurses/ncurses.html
+
+    PDCurses is available at:
+
+    http://pdcurses.sourceforge.net
+
+    If you want to compile blueMail with option WITH_CLOCK and a PDCurses
+    version prior to 2.6, you must patch PDCurses first, because the
+    official releases had a bug with the halfdelay() input function needed
+    for the clock. You can get a patch from:
+
+    http://home.wtal.de/ib/bluemail
+
+    (If you're using Linux, you may already have ncurses and InfoZip.)
+    Also, bear in mind that blueMail needs the C++ standard libraries,
+    not just C.
+
+2. Configure it (for compilation).
+
+    Check the paths at the top of the Makefile.inc (for installation) and
+    go thru the section appropriate to your operating system (a short
+    explanation can be found at the end of the Linux section which is used
+    as default).
+    If you want to omit one or more specific drivers (i.e. if you want
+    blueMail not to be able to handle all mail types in order to have a
+    smaller executable), edit bluemail/driverl.h and delete the lines
+    describing the drivers you want to omit.
+
+3. Compile blueMail.
+
+    At the base directory, type: make
+
+4. Run it.
+
+    Type: ./bmail
+    (For DOS, Windows or OS/2, set the BMAIL or HOME variable, then run
+    bmail.)
+
+5. (Optional:) Configure it (for end user).
+
+    Edit the ~/.bmailrc file.
+    (For DOS or OS/2, bmail.rc.)
+    Please have a look into the man page (bmailrc.5, or bmailrc.txt for DOS,
+    Windows or OS/2) or history file whether there are new options/keywords
+    since the last version.
+
+    Hint: Set all the miscellaneous options to `yes' to get all features
+    available.
+
+6. (Optional:) Install it system-wide.
+
+    Type: make install
+    This will install the binaries in BINDIR, the manuals in MAN1DIR and
+    MAN5DIR, and some useful example stuff in DOCDIR/bmail/examples.
+    (Requires root access and does not work in DOS, Windows or OS/2.
+    If you need automatic installation in DOS, Windows or OS/2, create a
+    batch file named bmail.bat which copies or moves the binaries into an
+    appropriate directory. Typing "make dos" will call bmail.bat with
+    parameter /install.)
+
+    There are icons suitable for Windows (bmail.ico) and Unix (bmail.png) in
+    the misc directory.
+
+7. (Optional:) Test it with the demo driver.
+
+    If you'd like to test blueMail, use the demo service.
+
+    If you'd like to test the offline mail packet service, but have no
+    offline mail packet, you can use a demo packet (an empty file, size 0
+    named demo.pkt packed into an archive). You can create an appropriate
+    archive by yourself or use demo.pkt which can be found in the misc
+    directory.
+
+    blueMail has a special, built-in demo driver which handles both service
+    and packet. The demo driver generates an area and messages which allows
+    you to get a first impression of blueMail (but not to test all blueMail
+    features).
+
+See the man page (bmail.1, or bmail.txt for DOS, Windows or OS/2) and README
+for more information, as well as the misc directory for some useful script
+and batch files.

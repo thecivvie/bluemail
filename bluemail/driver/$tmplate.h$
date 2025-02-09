@@ -1,0 +1,108 @@
+/*
+ * blueMail offline mail reader
+ * ????? driver
+
+ Copyright (c) 2004 Ingo Brueckl <ib@wupperonline.de>
+
+ Distributed under the GNU General Public License.
+ For details, see the file COPYING in the parent directory. */
+
+#ifndef ?????_H
+#define ?????_H
+
+
+#include "../bmail.h"
+
+
+class ????? : public basic_main
+{
+  private:
+    /* if maxAreas is known       /* if maxAreas has to be
+       or can be calculated */       determinated dynamically */
+    struct ?????_AREA_INFO        struct ?????_AREA_INFO
+    {                             {
+      int number;                   int number;
+      //char shortname[..];         //char shortname[..];
+      char *title;                  char *title;
+      int flags;                    int flags;
+      int totmsgs;                  int totmsgs;
+      // numpers is only needed if MSF_PERSONAL is used:
+      int numpers;                  int numpers;
+    } *areas;                       ?????_AREA_INFO *next;
+                                  } **areas;
+    PERSIDX *persIDX;           // only needed for personal area
+    int persmsgs;               // only needed for personal area
+    bodytype **body;
+    //char packetID[..];
+    //char error[80];
+    // FILE * of globally used files;
+
+    //bool getAreas();
+    int buildIndices();
+
+  public:
+    ?????(bmail *);
+    ~?????();
+    const char *init();
+    area_header *getNextArea();
+    int getNoOfLetters();
+    letter_header *getNextLetter();
+    const char *getBody(int, int, letter_header *);
+    void initMSF(int **);
+    int readMSF(int **);
+    const char *saveMSF(int **);
+    const char *getPacketID() const;
+    bool isLatin1();
+    bool offlineConfig();
+    int getAreaIndex(/*identifier*/) const;// for access from ?????_reply only
+};
+
+
+class ?????_reply : public basic_reply
+{
+  private:
+    ????? *mainDriver;
+    struct REPLY
+    {
+      // a structure suitable to store a letter's header information;
+      // or:
+      //struct
+      //{
+      //  const char *from;
+      //  const char *to;
+      //  const char *subject;
+      //  const char *date;
+      //  int replyto;
+      //  const char *areatag;
+      //  int flags;
+      //  const char *netAddr;
+      //} header;
+      const char *filename;
+      long length;
+      REPLY *next;
+    } *firstReply, *currentReply;
+
+    void replyInf();
+    bool putReplies();
+    bool put1Reply(FILE *, REPLY *);
+    bool getReplies();
+    bool get1Reply(FILE *, REPLY *);
+    //bool putConfig();
+
+  public:
+    ?????_reply(bmail *, main_driver *);
+    ~?????_reply();
+    const char *init();
+    area_header *getNextArea();
+    letter_header *getNextLetter();
+    const char *getBody(int, int, letter_header *);
+    void resetLetters();
+    bool isLatin1();
+    void enterLetter(letter_header *, const char *, long);
+    void killLetter(int);
+    const char *newLetterBody(int, long);
+    //void getConfig();
+};
+
+
+#endif

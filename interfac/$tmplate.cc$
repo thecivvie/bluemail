@@ -1,0 +1,245 @@
+/*
+ * blueMail offline mail reader
+ * foo list
+
+ Copyright (c) 2010 Ingo Brueckl <ib@wupperonline.de>
+
+ Distributed under the GNU General Public License.
+ For details, see the file COPYING in the parent directory. */
+
+
+#include <string.h>
+#include "interfac.h"
+#include "../common/auxil.h"
+
+
+FooListWindow::FooListWindow ()
+{
+  noOfFoos = noOfListed = 0;
+  foo = NULL;
+  listed = NULL;
+  filter = NULL;
+
+  // initial settings, like:
+  foosort = bm.resourceObject->isYes(SortFoo);
+}
+
+
+FooListWindow::~FooListWindow ()
+{
+  delete[] filter;
+  DestroyChain();
+}
+
+
+void FooListWindow::MakeActive ()
+{
+  list_max_y = LINES - ...   // lines from top, 3 lines border and header,
+                             // lines to bottom
+  list_max_x = ...
+
+  sprintf(format, ...   // for oneLine()
+
+  list = new Window(list_max_y + 3, list_max_x + 2,
+                    (LINES - list_max_y - 3) >> 1,
+                    (COLS - list_max_x - 2) >> 1,
+                    C_BORDER, "Foos available", C_TOPTEXT);
+
+  if (filter)
+  {
+    chtype fmark[2] = {' ' | C_BORDER, FILTER_SIGN | C_BORDER};
+    list->putchnstr(0, list_max_x, fmark, 2);
+  }
+
+  list->delay_update();
+
+  MakeChain();
+  relist();
+  Draw();
+  //Select();
+}
+
+
+void FooListWindow::Delete ()
+{
+  delete list;
+}
+
+
+void FooListWindow::Quit ()
+{
+  delete[] filter;
+  filter = NULL;
+}
+
+
+void FooListWindow::MakeChain ()
+{
+  Foo head, *curr;
+
+  DestroyChain();
+  curr = &head;
+
+  // build chain
+  while (...)
+  {
+    curr->next = new Foo;
+    curr = curr->next;
+    curr->data = ...;       // data to be displayed
+    noOfFoos++;
+  }
+
+  // fill index array
+  if (noOfFoos)
+  {
+    foo = new Foo *[noOfFoos];
+    curr = head.next;
+    int i = 0;
+
+    while (curr)
+    {
+      foo[i++] = curr;
+      curr = curr->next;
+    }
+
+    // sort
+    if (foosort) qsort(foo, noOfFoos, sizeof(Foo *), foosortbydata);
+
+    // filter
+    listed = new int[noOfFoos];
+    for (int i = 0; i < noOfFoos; i++)
+    {
+      // initialize listed, so that oneSearch() can be used to check filter
+      listed[i] = i;
+
+      if (!filter || (oneSearch(i, filter) == FND_YES))
+        listed[noOfListed++] = i;
+    }
+  }
+}
+
+
+void FooListWindow::DestroyChain ()
+{
+  while (noOfFoos) delete foo[--noOfFoos];
+  delete[] foo;
+  foo = NULL;
+
+  noOfListed = 0;
+  delete[] listed;
+  listed = NULL;
+}
+
+
+//void FooListWindow::Select ()
+//{
+//  /* goto item(listed[active]) */
+//}
+
+
+int FooListWindow::noOfItems ()
+{
+  return noOfListed;
+}
+
+
+void FooListWindow::oneLine (int i)
+{
+  sprintf(list->lineBuf, format, foo[listed[topline + i]]->data);
+  list->PUTLINE(i, C_LIST);
+}
+
+
+searchtype FooListWindow::oneSearch (int l, const char *what)
+{
+  return (strexcmp(foo[listed[l]]->data, what) ? FND_YES : FND_NO);
+
+  /* multiple search fields:
+   *
+   * int isNot;
+   * bool found1, found2;
+   *
+   * found1 = (strexcmp(foo[listed[l]]->data, what) != NULL);
+   * found2 = ...;
+   *
+   * (void) strex(isNot, what);
+   * return ((isNot ? found1 && found2 : found1 || found2) ? FND_YES : FND_NO);
+   */
+}
+
+
+void FooListWindow::askFilter ()
+{
+  char input[QUERYINPUT + 1];
+
+  strncpy(input, (filter ? filter : ""), QUERYINPUT);
+  input[QUERYINPUT] = '\0';
+
+  if (interface->QueryBox("Filter on:", input, QUERYINPUT) != GOT_ESC)
+  {
+    savePos();
+
+    delete[] filter;
+    filter = strdupplus(input);
+    MakeChain();
+
+    // empty list isn't allowed
+    if (noOfListed == 0)
+    {
+      if (*filter) interface->ErrorWindow("No match");
+      delete[] filter;
+      filter = NULL;
+      MakeChain();
+      restorePos();
+    }
+  }
+}
+
+
+void FooListWindow::extrakeys (int key)
+{
+  //Select();
+
+  switch (key)
+  {
+    case 'A':
+      interface->changestate(addressbook);
+      break;
+
+    case 'O':
+      foosort = !foosort;
+      MakeChain();
+      interface->update();
+      break;
+
+    case '|':
+      askFilter();
+      interface->update();
+      break;
+
+    case KEY_LEFT:
+      Move(UP);
+      Draw();
+      break;
+
+    case KEY_RIGHT:
+      Move(DOWN);
+      Draw();
+      break;
+  }
+}
+
+
+/*
+   foo qsort compare function
+*/
+
+int foosortbydata (const void *a, const void *b)
+{
+  const char *fa = (*(Foo **) a)->data;
+  const char *fb = (*(Foo **) b)->data;
+
+  int result = strcasecoll(fa, fb);
+
+  return (result ? result : strcoll(fa, fb));
+}
